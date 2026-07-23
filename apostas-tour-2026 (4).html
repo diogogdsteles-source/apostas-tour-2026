@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apostas · Tour de France 2026</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --y:#F5C518;--yd:#B8890A;
+  --bg:#fff;--bg2:#f6f5f2;--bg3:#eeede9;
+  --bd:rgba(0,0,0,0.11);--bd2:rgba(0,0,0,0.22);
+  --t:#1a1a18;--t2:#6b6b67;--t3:#9a9a94;
+  --gbg:#EAF3DE;--gbd:#97C459;--gt:#3B6D11;--gdk:#27500A;
+  --abg:#FAEEDA;--abd:#FAC775;--at:#BA7517;--adk:#633806;
+  --bbg:#E6F1FB;--bbd:#85B7EB;--bt:#0C447C;
+  --rbg:#FCEBEB;--rbd:#F09595;--rt:#A32D2D;
+  --rad:8px;--radl:12px;
+  --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#1c1c1a;--bg2:#252523;--bg3:#2e2e2b;
+  --bd:rgba(255,255,255,0.11);--bd2:rgba(255,255,255,0.22);
+  --t:#f0f0ec;--t2:#9a9a94;--t3:#6b6b67;
+  --gbg:#173404;--gbd:#3B6D11;--gt:#C0DD97;--gdk:#EAF3DE;
+  --abg:#412402;--abd:#854F0B;--at:#FAC775;--adk:#FAEEDA;
+  --bbg:#042C53;--bbd:#185FA5;--bt:#B5D4F4;
+  --rbg:#501313;--rbd:#A32D2D;--rt:#F7C1C1;
+}}
+body{font-family:var(--font);background:var(--bg2);color:var(--t);min-height:100vh;font-size:15px;line-height:1.5}
+.page{max-width:680px;margin:0 auto;padding:1.5rem 1rem 5rem}
+
+/* Header */
+.hdr{display:flex;align-items:center;gap:14px;margin-bottom:1.5rem}
+.hdr-icon{background:var(--y);border-radius:10px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+
+/* Tabs */
+.tabs{display:flex;margin-bottom:1.5rem;border-bottom:1px solid var(--bd);overflow-x:auto}
+.tab{padding:10px 16px;font-size:13px;font-weight:700;border:none;background:none;color:var(--t2);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;font-family:var(--font);transition:color .15s;display:flex;align-items:center;gap:6px}
+.tab.on{color:var(--t);border-bottom-color:var(--yd)}
+.tab:hover:not(.on){color:var(--t)}
+.tab .bdg{background:var(--at);color:#fff;font-size:10px;font-weight:800;padding:1px 6px;border-radius:99px}
+.panel{display:none}.panel.on{display:block}
+
+/* Mountain leaderboard */
+.mtn-card{background:var(--bg);border:1px solid var(--bd);border-radius:var(--radl);overflow:hidden;margin-bottom:1rem}
+.lb-list{padding:.75rem}
+.lb-row{display:grid;grid-template-columns:32px 36px 1fr auto;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--rad);margin-bottom:5px;border:1px solid var(--bd);background:var(--bg2)}
+.lb-row.gold{background:var(--abg);border-color:var(--abd)}
+.lb-row.sil,.lb-row.bro{background:var(--bg3)}
+.prog-bg{background:var(--bd);border-radius:99px;height:4px;margin-top:5px;overflow:hidden}
+.prog-fill{height:4px;border-radius:99px;background:var(--y)}
+.chip{display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:99px;margin-left:5px;vertical-align:middle}
+.chip-ok{background:var(--gbg);color:var(--gt)}.chip-used{background:var(--bg3);color:var(--t2)}
+
+/* Autocomplete */
+.ac-wrap{position:relative}
+.ac-list{position:absolute;top:100%;left:0;right:0;background:var(--bg);border:1px solid var(--bd2);border-radius:var(--rad);box-shadow:0 4px 16px rgba(0,0,0,0.12);z-index:100;max-height:200px;overflow-y:auto;margin-top:2px}
+.ac-item{padding:8px 12px;font-size:13px;cursor:pointer;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.ac-item:last-child{border-bottom:none}
+.ac-item:hover,.ac-item.sel{background:var(--abg)}
+.ac-item-name{font-weight:600;color:var(--t)}
+.ac-item-team{font-size:11px;color:var(--t2);margin-left:8px;white-space:nowrap}
+/* Wizard (apostas) */
+.wiz{background:var(--bg);border:1px solid var(--bd);border-radius:var(--radl);overflow:hidden}
+.wiz-bar{display:flex;background:var(--bg2);border-bottom:1px solid var(--bd)}
+.wdot{flex:1;padding:10px 5px;text-align:center;font-size:11px;font-weight:700;color:var(--t2);border-right:1px solid var(--bd)}
+.wdot:last-child{border-right:none}
+.wdot.cur{color:var(--yd);border-bottom:2px solid var(--yd)}
+.wdot.done{color:var(--gt)}
+.wbody{padding:1.375rem}
+.wtitle{font-size:16px;font-weight:800;margin-bottom:3px}
+.wsub{font-size:13px;color:var(--t2);margin-bottom:1.125rem}
+
+/* Stage grid */
+.sg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:6px;margin-bottom:1rem}
+.sg{border:1px solid var(--bd);border-radius:var(--rad);padding:9px 10px 7px;cursor:pointer;background:var(--bg);transition:border-color .12s}
+.sg:hover:not(.sg-off){border-color:var(--yd)}
+.sg.sg-on{border-color:var(--yd);background:var(--abg)}
+.sg.sg-off{opacity:.35;cursor:not-allowed;pointer-events:none}
+.sg-n{font-size:13px;font-weight:700;margin-bottom:1px}
+.sg-r{font-size:11px;color:var(--t2);line-height:1.35}
+.sg.sg-on .sg-r{color:var(--at)}
+.spill{display:inline-block;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;margin-top:4px}
+.sp-o{background:var(--bbg);color:var(--bt)}
+.sp-w{background:var(--abg);color:var(--at)}
+.sp-d{background:var(--gbg);color:var(--gt)}
+
+/* Player bet cards */
+.p-card{border:1px solid var(--bd);border-radius:var(--radl);padding:1rem 1.125rem;margin-bottom:.75rem;background:var(--bg)}
+.p-card.locked{border-color:var(--gbd);background:var(--gbg)}
+.p-hdr{display:flex;align-items:center;gap:10px;margin-bottom:.625rem}
+.p-inputs{display:grid;grid-template-columns:1fr 86px;gap:8px}
+.fg label{font-size:12px;color:var(--t2);display:block;margin-bottom:4px;font-weight:700}
+.fg input{width:100%;border:1px solid var(--bd2);border-radius:var(--rad);padding:8px 10px;font-size:13px;background:var(--bg);color:var(--t);font-family:var(--font)}
+.fg input:focus{outline:none;border-color:var(--yd)}
+.fg input:disabled{opacity:.4;cursor:not-allowed}
+.jklbl{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--t2);margin-top:9px;cursor:pointer}
+.jklbl input{accent-color:var(--yd)}
+.lock-badge{font-size:11px;background:var(--gbg);color:var(--gt);padding:3px 9px;border-radius:99px;font-weight:700;white-space:nowrap}
+
+/* Resultado tab */
+.res-stage-hdr{background:var(--bg);border:1px solid var(--abd);border-radius:var(--radl);padding:1.125rem;margin-bottom:1rem}
+.bets-preview{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:5px;margin-top:.75rem}
+.bp{background:var(--bg2);border:1px solid var(--abd);border-radius:var(--rad);padding:7px 9px}
+.bp-n{font-size:11px;color:var(--at);font-weight:700;margin-bottom:1px}
+.bp-cy{font-size:13px;font-weight:700;color:var(--adk)}
+
+/* Winner input */
+.winner-input-row{display:flex;gap:10px;align-items:flex-end;margin-bottom:1.25rem;flex-wrap:wrap}
+.winner-input-row .fg{flex:1;min-width:160px}
+.winner-set{background:var(--gbg);border:1px solid var(--gbd);border-radius:var(--radl);padding:1rem 1.125rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:12px}
+.winner-set-name{font-size:18px;font-weight:800;color:var(--gdk)}
+
+/* Position entry rows */
+.pos-entry{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--bd)}
+.pos-entry:last-child{border-bottom:none}
+.pos-input{width:70px;border:1px solid var(--bd2);border-radius:var(--rad);padding:8px 10px;font-size:15px;font-weight:700;text-align:center;background:var(--bg);color:var(--t);font-family:var(--font)}
+.pos-input:focus{outline:none;border-color:var(--yd)}
+.win-badge{font-size:13px;background:var(--gbg);color:var(--gt);padding:6px 14px;border-radius:99px;font-weight:700}
+.pts-preview{font-size:13px;font-weight:700;min-width:60px;text-align:right}
+
+/* Confirm table */
+.ct{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:1rem}
+.ct th{text-align:left;font-size:12px;font-weight:700;color:var(--t2);padding:6px 8px;border-bottom:1px solid var(--bd)}
+.ct td{padding:8px 8px;border-bottom:1px solid var(--bd)}
+.ct tr:last-child td{border-bottom:none}
+.ct .wrow td{background:var(--gbg);color:var(--gdk);font-weight:700}
+
+/* History */
+.bet-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(95px,1fr));gap:4px;margin-bottom:1.25rem}
+.bc{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--rad);padding:8px 10px}
+.bc.bw{background:var(--gbg);border-color:var(--gbd)}
+.bc-pn{font-size:11px;color:var(--t2);margin-bottom:2px;font-weight:700}
+.bc-cy{font-size:13px;font-weight:700}
+.bc-pt{font-size:12px;margin-top:3px}
+.bc.bw .bc-pt{color:var(--gt);font-weight:700}
+.type-pill{font-size:11px;padding:2px 7px;border-radius:99px;background:var(--bg2);border:1px solid var(--bd);color:var(--t2)}
+.seclab{font-size:13px;font-weight:700;color:var(--t2);margin-bottom:8px}
+
+/* Config */
+.card{background:var(--bg);border:1px solid var(--bd);border-radius:var(--radl);padding:1.25rem;margin-bottom:.875rem}
+.card-title{font-size:15px;font-weight:700;margin-bottom:.75rem}
+.pl-row{display:flex;gap:8px;margin-bottom:8px;align-items:center}
+.pl-row input{flex:1;border:1px solid var(--bd2);border-radius:var(--rad);padding:8px 10px;font-size:13px;background:var(--bg);color:var(--t);font-family:var(--font)}
+.pl-row select{border:1px solid var(--bd2);border-radius:var(--rad);padding:8px;font-size:18px;background:var(--bg);color:var(--t);font-family:var(--font);cursor:pointer}
+
+/* Misc */
+.warn{background:var(--abg);border:1px solid var(--abd);border-radius:var(--rad);padding:10px 13px;font-size:13px;color:var(--adk);margin-bottom:1rem;display:flex;align-items:flex-start;gap:8px;line-height:1.5}
+.empty-state{text-align:center;padding:3rem 1rem;color:var(--t2)}
+.empty-state .big{font-size:3rem;margin-bottom:.5rem}
+hr.dv{border:none;border-top:1px solid var(--bd);margin:1.25rem 0}
+
+/* Buttons */
+.nav{display:flex;gap:8px;margin-top:1rem;align-items:center;flex-wrap:wrap}
+.btn{border-radius:var(--rad);padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);display:inline-flex;align-items:center;gap:6px;transition:opacity .15s}
+.btn:hover{opacity:.82}.btn:disabled{opacity:.32;cursor:not-allowed}
+.bty{background:var(--y);color:#2C2C2A;border:none}
+.btg{background:var(--gt);color:#fff;border:none}
+.btgh{background:none;border:1px solid var(--bd2);color:var(--t)}
+.btgh:hover{background:var(--bg2);opacity:1}
+.btsm{padding:6px 12px;font-size:12px}
+.btdanger{background:var(--rbg);color:var(--rt);border:1px solid var(--rbd)}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="hdr">
+  <div class="hdr-icon">🏆</div>
+  <div>
+    <div style="font-size:20px;font-weight:800">Apostas · Tour de France 2026</div>
+    <div style="font-size:13px;color:var(--t2)">4–26 julho · Barcelona → Paris · 21 etapas</div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab on"  onclick="go('lb')">🏔 Classificação</button>
+  <button class="tab"     onclick="go('add')">✏️ Apostas</button>
+  <button class="tab"     onclick="go('res')">🏁 Resultado <span class="bdg" id="res-bdg" style="display:none">!</span></button>
+  <button class="tab"     onclick="go('hist')">📋 Histórico</button>
+  <button class="tab"     onclick="go('cfg')">⚙️ Config</button>
+</div>
+
+<div id="p-lb"   class="panel on"></div>
+<div id="p-add"  class="panel"></div>
+<div id="p-res"  class="panel"></div>
+<div id="p-hist" class="panel"></div>
+<div id="p-cfg"  class="panel"></div>
+
+</div>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+// ── Firebase ──
+const firebaseConfig = {
+    apiKey: "AIzaSyCPoM9sV20_IbLj1RD0SiCMQTV2GcuikmY",
+    authDomain: "apostas-tour-2026-92bc7.firebaseapp.com",
+    databaseURL: "https://apostas-tour-2026-92bc7-default-rtdb.firebaseio.com",
+    projectId: "apostas-tour-2026-92bc7",
+    storageBucket: "apostas-tour-2026-92bc7.firebasestorage.app",
+    messagingSenderId: "15242719686",
+    appId: "1:15242719686:web:0ec7187ab516bde30282c7"
+  };
+let db = null;
+const DB_REF = 'tdf2026';
+function initFirebase(){
+  try{
+    if(typeof firebase==='undefined') return false;
+    if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    db = firebase.database();
+    return true;
+  } catch(e){ console.warn('Firebase init error:',e); return false; }
+}
+
+// ── Firebase sync ──
+async function fbLoad(){
+  if(!initFirebase()) return;
+  try{
+    const snap = await db.ref(DB_REF).get();
+    if(snap.exists()){
+      const data = snap.val();
+      S.stages = data.stages || [];
+      S.players = data.players || S.players;
+      S.icons = data.icons || S.icons;
+    }
+  } catch(e){ console.warn('Firebase load error:', e); }
+}
+
+function fbSave(){
+  if(!db && !initFirebase()) return;
+  try{
+    db.ref(DB_REF).set({
+      stages: S.stages,
+      players: S.players,
+      icons: S.icons
+    });
+  } catch(e){ console.warn('Firebase save error:', e); }
+}
+
+// Listen for real-time updates from other clients
+function fbListen(){
+  if(!db && !initFirebase()) return;
+  db.ref(DB_REF).on("value", (snap)=>{
+    if(!snap.exists()) return;
+    const data = snap.val();
+    S.stages = data.stages || [];
+    S.players = data.players || S.players;
+    S.icons = data.icons || S.icons;
+    const tabs = ['lb','add','res','hist','cfg'];
+    const activeTab = tabs.find(t => document.getElementById('p-'+t)?.classList.contains('on')) || 'lb';
+    if(activeTab !== 'add')
+      ({lb:rLB, res:rRes, hist:rHist, cfg:rCfg, add:()=>{}})[activeTab]?.();
+    updateBadge();
+  });
+}
+
+const SI=[
+  {n:1,d:'4 jul',r:'Barcelona (TTT)',km:19.7,t:'crono'},
+  {n:2,d:'5 jul',r:'Tarragona → Barcelona',km:178,t:'ondulada'},
+  {n:3,d:'6 jul',r:'Granollers → Les Angles',km:196,t:'montanha'},
+  {n:4,d:'7 jul',r:'Carcassonne → Foix',km:182,t:'ondulada'},
+  {n:5,d:'8 jul',r:'Lannemezan → Pau',km:158,t:'plana'},
+  {n:6,d:'9 jul',r:'Pau → Gavarnie-Gèdre',km:186,t:'montanha'},
+  {n:7,d:'10 jul',r:'Hagetmau → Bordeaux',km:175,t:'plana'},
+  {n:8,d:'11 jul',r:'Périgueux → Bergerac',km:182,t:'plana'},
+  {n:9,d:'12 jul',r:'Malemort → Ussel',km:185,t:'ondulada'},
+  {n:10,d:'14 jul',r:'Aurillac → Le Lioran',km:167,t:'montanha'},
+  {n:11,d:'15 jul',r:'Vichy → Nevers',km:161,t:'plana'},
+  {n:12,d:'16 jul',r:'Magny-Cours → Chalon-sur-Saône',km:181,t:'plana'},
+  {n:13,d:'17 jul',r:'Dole → Belfort',km:205,t:'ondulada'},
+  {n:14,d:'18 jul',r:'Mulhouse → Le Markstein',km:155,t:'montanha'},
+  {n:15,d:'19 jul',r:'Champagnole → Plateau de Solaison',km:184,t:'montanha'},
+  {n:16,d:'21 jul',r:'Évian → Thonon-les-Bains (ITT)',km:26,t:'crono'},
+  {n:17,d:'22 jul',r:'Chambéry → Voiron',km:175,t:'plana'},
+  {n:18,d:'23 jul',r:'Voiron → Orcières-Merlette',km:185,t:'montanha'},
+  {n:19,d:'24 jul',r:"Gap → Alpe d'Huez",km:128,t:'montanha'},
+  {n:20,d:'25 jul',r:"Le Bourg-d'Oisans → Alpe d'Huez",km:171,t:'montanha'},
+  {n:21,d:'26 jul',r:'Thoiry → Paris Champs-Élysées',km:130,t:'plana'},
+];
+const TI={crono:'⏱',montanha:'⛰',ondulada:'〰',plana:'→'};
+const ALL_ICONS=['🚴','🚵','🏅','🎽','⚡','🌟','🦅','🐺','🦁','🐯','🦊','🦋','🏹','🎯','🔥','💎','🌈','🍀'];
+const COLORS=['#378ADD','#1D9E75','#D85A30','#D4537E','#7F77DD','#BA7517','#639922'];
+
+const STARTLIST=[
+  ["Abrahamsen Jonas","Uno-X Mobility"],
+  ["Ackermann Pascal","Jayco AlUla"],
+  ["Adrià Roger","Movistar"],
+  ["Affini Edoardo","Visma-Lease a Bike"],
+  ["Alaphilippe Julian","Soudal Quick-Step"],
+  ["Aranburu Alex","Bahrain Victorious"],
+  ["Arensman Thymen","XDS Astana"],
+  ["Armirail Bruno","Visma-Lease a Bike"],
+  ["Asgreen Kasper","Soudal Quick-Step"],
+  ["Askey Lewis","NSN Cycling"],
+  ["Ayuso Juan","UAE Team Emirates"],
+  ["Barguil Warren","Lotto Intermarché"],
+  ["Bennett George","NSN Cycling"],
+  ["Bilbao Pello","Bahrain Victorious"],
+  ["Bissegger Stefan","EF Education"],
+  ["Buchmann Emanuel","XDS Astana"],
+  ["Campenaerts Victor","Visma-Lease a Bike"],
+  ["Carapaz Richard","EF Education"],
+  ["Carr Simon","EF Education"],
+  ["Castrillo Pablo","Decathlon CMA CGM"],
+  ["Cattaneo Mattia","Red Bull-Bora"],
+  ["Ciccone Giulio","Lidl-Trek"],
+  ["Cort Magnus","Uno-X Mobility"],
+  ["De Lie Arnaud","Lotto Intermarché"],
+  ["Del Toro Isaac","UAE Team Emirates"],
+  ["Denz Nico","Red Bull-Bora"],
+  ["Evenepoel Remco","Red Bull-Bora"],
+  ["Fortunato Lorenzo","Lotto Intermarché"],
+  ["Fretin Milan","Cofidis"],
+  ["Ganna Filippo","Ineos Grenadiers"],
+  ["Gaudu David","Groupama-FDJ"],
+  ["Girmay Biniam","NSN Cycling"],
+  ["Godon Dorian","Bahrain Victorious"],
+  ["Healy Ben","EF Education"],
+  ["Higuita Sergio","EF Education"],
+  ["Hindley Jai","Red Bull-Bora"],
+  ["Honoré Mikkel","Soudal Quick-Step"],
+  ["Hoole Daan","Lidl-Trek"],
+  ["Izagirre Ion","Bahrain Victorious"],
+  ["Jegat Jordan","Cofidis"],
+  ["Johannessen Tobias H.","Uno-X Mobility"],
+  ["Jorgenson Matteo","Visma-Lease a Bike"],
+  ["Kooij Olav","Picnic PostNL"],
+  ["Kragh Andersen Søren","Uno-X Mobility"],
+  ["Kron Andreas","Uno-X Mobility"],
+  ["Kuss Sepp","Visma-Lease a Bike"],
+  ["Kwiatkowski Michał","Ineos Grenadiers"],
+  ["Küng Stefan","Alpecin-Premier Tech"],
+  ["Landa Mikel","Bahrain Victorious"],
+  ["Lipowitz Florian","Red Bull-Bora"],
+  ["Martin Guillaume","Decathlon CMA CGM"],
+  ["Martinez Lenny","Groupama-FDJ"],
+  ["Matthews Michael","Jayco AlUla"],
+  ["McNulty Brandon","UAE Team Emirates"],
+  ["Meeus Jordi","XDS Astana"],
+  ["Merlier Tim","Alpecin-Premier Tech"],
+  ["Mohorič Matej","Bahrain Victorious"],
+  ["Molenaar Alex","Picnic PostNL"],
+  ["Moscon Gianni","XDS Astana"],
+  ["O'Connor Ben","Jayco AlUla"],
+  ["Page Hugo","Groupama-FDJ"],
+  ["Paret-Peintre Valentin","Decathlon CMA CGM"],
+  ["Pedersen Mads","Lidl-Trek"],
+  ["Philipsen Jasper","Alpecin-Premier Tech"],
+  ["Pidcock Tom","Ineos Grenadiers"],
+  ["Piganzoli Davide","Visma-Lease a Bike"],
+  ["Plapp Luke","Jayco AlUla"],
+  ["Pluimers Rick","Picnic PostNL"],
+  ["Pogačar Tadej","UAE Team Emirates"],
+  ["Rickaert Jonas","Alpecin-Premier Tech"],
+  ["Rodríguez Carlos","Ineos Grenadiers"],
+  ["Romeo Iván","XDS Astana"],
+  ["Rubio Einer","Movistar"],
+  ["Schmid Mauro","Jayco AlUla"],
+  ["Seixas Paul","Decathlon CMA CGM"],
+  ["Simmons Quinn","Lidl-Trek"],
+  ["Skjelmose Mattias","Lidl-Trek"],
+  ["Soler Marc","UAE Team Emirates"],
+  ["Stewart Jake","NSN Cycling"],
+  ["Storer Michael","Groupama-FDJ"],
+  ["Strand Hagenes Per","Visma-Lease a Bike"],
+  ["Stuyven Jasper","Lidl-Trek"],
+  ["Tejada Harold","EF Education"],
+  ["Teunissen Mike","Picnic PostNL"],
+  ["Tiberi Antonio","Movistar"],
+  ["Tratnik Jan","Red Bull-Bora"],
+  ["Træen Torstein","Uno-X Mobility"],
+  ["Tulett Ben","Ineos Grenadiers"],
+  ["Uijtdebroeks Cian","EF Education"],
+  ["Van Asbroeck Tom","NSN Cycling"],
+  ["Van Dijke Tim","Red Bull-Bora"],
+  ["Van Eetvelt Lennert","Lotto Intermarché"],
+  ["Van Gils Maxim","Red Bull-Bora"],
+  ["Van Wilder Ilan","Picnic PostNL"],
+  ["Van den Broek Frank","Picnic PostNL"],
+  ["Van der Poel Mathieu","Alpecin-Premier Tech"],
+  ["Vauquelin Kévin","Decathlon CMA CGM"],
+  ["Vermeersch Florian","Alpecin-Premier Tech"],
+  ["Verstrynge Emiel","Movistar"],
+  ["Vervaeke Louis","Soudal Quick-Step"],
+  ["Vingegaard Jonas","Visma-Lease a Bike"],
+  ["Wellens Tim","Lotto Intermarché"],
+  ["Wright Fred","EF Education"],
+  ["Wærenskjold Søren","Uno-X Mobility"],
+  ["Yates Adam","Ineos Grenadiers"],
+  ["Zimmermann Georg","EF Education"]
+];
+
+const DEF={players:['Aléxis','Diogo','Gonçalo','Padeiro','Pinto'],icons:['⚡','🏅','🚵','🎽','🚴'],stages:[]};
+let S=JSON.parse(localStorage.getItem('tdf2026')||'null')||JSON.parse(JSON.stringify(DEF));
+if(!S.icons)S.icons=S.players.map((_,i)=>ALL_ICONS[i%ALL_ICONS.length]);
+const sv=()=>{
+  try{localStorage.setItem('tdf2026',JSON.stringify(S))}catch(e){}
+  fbSave();
+};
+
+const calcPts=(pos,win,joker)=>{if(win) return joker?-100:-50; return joker?Math.round(pos/2):pos;};
+const jkUsed=pl=>S.stages.some(s=>s.jokers&&s.jokers[pl]&&s.status==='done');
+const picon=i=>(S.icons&&S.icons[i])||ALL_ICONS[i%ALL_ICONS.length];
+const pcolor=i=>COLORS[i%COLORS.length];
+function pendingStages(){return S.stages.filter(s=>s.status==='pending').sort((a,b)=>a.num-b.num);}
+
+function getScores(){
+  const pts={},wins={};
+  S.players.forEach(p=>{pts[p]=0;wins[p]=0});
+  S.stages.filter(s=>s.status==='done').forEach(s=>{
+    S.players.forEach(p=>{
+      const b=s.bets&&s.bets[p],pos=s.positions&&s.positions[p];
+      if(!b||pos==null)return;
+      const w=b.trim().toLowerCase()===s.winner.trim().toLowerCase();
+      pts[p]+=calcPts(pos,w,s.jokers&&s.jokers[p]);
+      if(w)wins[p]++;
+    });
+  });
+  return{pts,wins};
+}
+
+function updateBadge(){
+  const b=document.getElementById('res-bdg');
+  if(!b)return;
+  const n=pendingStages().length;
+  b.style.display=n?'inline':'none';
+  b.textContent=n;
+}
+
+function go(tab){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('on',['lb','add','res','hist','cfg'][i]===tab));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.getElementById('p-'+tab).classList.add('on');
+  updateBadge();
+  ({lb:rLB,add:()=>rWiz(),res:rRes,hist:rHist,cfg:rCfg})[tab]();
+}
+
+/* ══════════════════════════════
+   MOUNTAIN LEADERBOARD
+══════════════════════════════ */
+function rLB(){
+  const{pts,wins}=getScores();
+  const sorted=[...S.players].sort((a,b)=>pts[a]-pts[b]);
+  const done=S.stages.filter(s=>s.status==='done').length;
+  const pend=pendingStages().length;
+  const n=sorted.length;
+
+  // Mont Ventoux: single road climbing from bottom-left to top-right
+  // Road drawn as a winding path up the mountain profile
+  // Riders placed along the road — leader at top (least pts)
+
+  const VW=680, VH=340;
+
+  // Road waypoints — serpentine climb from bottom-left to summit top-right
+  // Each point: [x, y]
+  const road=[
+    [40, 308],   // start — village at base
+    [110, 285],  // early flat
+    [165, 268],
+    [205, 248],  // first bend left
+    [175, 225],
+    [145, 202],  // hairpin
+    [190, 182],
+    [248, 162],  // mid climb
+    [295, 145],
+    [318, 122],  // upper section
+    [352, 102],
+    [395, 85],   // near summit
+    [440, 72],   // summit observatory
+  ];
+
+  // Interpolate position along road at fraction t [0..1]
+  // t=1 = summit (best), t=0 = base (worst)
+  function roadPos(fraction){
+    const segs=road.length-1;
+    const pos=fraction*(segs);
+    const i=Math.min(Math.floor(pos),segs-1);
+    const rem=pos-i;
+    const a=road[i], b=road[i+1];
+    return{x:a[0]+(b[0]-a[0])*rem, y:a[1]+(b[1]-a[1])*rem};
+  }
+
+  // rank 0 = best = near summit, rank n-1 = base
+  // spread evenly from 0.92 (near top) down to 0.08 (near base)
+  function riderPos(rank){
+    const t= n===1 ? 0.92 : 0.92 - rank/(n-1)*0.84;
+    return roadPos(t);
+  }
+
+  let svg=`<svg width="100%" viewBox="0 0 ${VW} ${VH}" role="img" aria-label="Classificação Mont Ventoux"><title>Classificação Tour 2026 — Mont Ventoux</title><desc>Riders posicionados numa subida estilo Mont Ventoux, do líder no topo ao último na base</desc>`;
+
+  // ── SKY (hardcoded — physical scene) ──
+  svg+=`<rect x="0" y="0" width="${VW}" height="${VH}" fill="#b8d4e8"/>`;
+  // Sky gradient bands
+  svg+=`<rect x="0" y="0" width="${VW}" height="100" fill="#8ab4d0" opacity="0.4"/>`;
+
+  // ── MOUNTAIN SILHOUETTE (rocky, Ventoux-style) ──
+  // Bare rocky summit (white/grey limestone) + forested lower slopes
+  // Background mountain ridge
+  svg+=`<polygon points="0,${VH} 0,240 80,180 160,200 240,140 320,90 400,110 480,60 560,90 640,120 ${VW},140 ${VW},${VH}" fill="#8a9fa8"/>`;
+  // Main mountain body
+  svg+=`<polygon points="0,${VH} 0,260 60,220 120,230 160,200 220,160 280,120 340,80 400,100 440,68 500,95 560,130 620,160 ${VW},180 ${VW},${VH}" fill="#9eb09a"/>`;
+  // Forest belt (dark green, mid-slope)
+  svg+=`<polygon points="0,${VH} 0,295 80,260 150,265 200,245 260,210 310,190 360,175 420,170 480,175 540,190 600,210 640,230 ${VW},245 ${VW},${VH}" fill="#5a7a52"/>`;
+  svg+=`<polygon points="0,${VH} 0,310 100,285 180,280 240,265 300,248 360,238 420,238 480,248 540,268 600,285 ${VW},295 ${VW},${VH}" fill="#4a6a44"/>`;
+  // Rocky summit (limestone white)
+  svg+=`<polygon points="280,120 320,85 370,70 420,58 460,65 500,80 530,100 490,115 440,108 390,115 340,130" fill="#d4cec4"/>`;
+  svg+=`<polygon points="330,80 370,60 410,50 450,56 490,75 460,78 420,68 380,72 340,82" fill="#e8e4dc"/>`;
+  // Observatory at summit (iconic Ventoux tower)
+  svg+=`<rect x="436" y="46" width="10" height="14" fill="#b0a898" rx="1"/>`;
+  svg+=`<rect x="432" y="42" width="18" height="8" fill="#c8c0b4" rx="1"/>`;
+  svg+=`<rect x="438" y="36" width="6" height="8" fill="#b0a898" rx="1"/>`;
+  // Rocks
+  svg+=`<ellipse cx="360" cy="100" rx="8" ry="4" fill="#bab0a4" opacity="0.8"/>`;
+  svg+=`<ellipse cx="395" cy="88" rx="6" ry="3" fill="#c0b8ac" opacity="0.7"/>`;
+  svg+=`<ellipse cx="480" cy="82" rx="9" ry="4" fill="#b8b0a4" opacity="0.7"/>`;
+  // Village at base (left)
+  svg+=`<rect x="18" y="292" width="14" height="12" fill="#c8a878" rx="1"/>`;
+  svg+=`<polygon points="15,292 25,282 35,292" fill="#b05030"/>`;
+  svg+=`<rect x="38" y="296" width="12" height="8" fill="#c8a878" rx="1"/>`;
+  svg+=`<polygon points="35,296 44,288 53,296" fill="#903020"/>`;
+  // Road path (winding, light grey asphalt)
+  const roadPts=road.map(p=>p.join(',')).join(' ');
+  svg+=`<polyline points="${roadPts}" fill="none" stroke="#e8e0d0" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>`;
+  svg+=`<polyline points="${roadPts}" fill="none" stroke="#f5f0e8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.7" stroke-dasharray="8,6"/>`;
+  // Distance markers on road (km posts)
+  [0.2,0.45,0.7].forEach(t=>{
+    const p=roadPos(t);
+    svg+=`<rect x="${(p.x-5).toFixed(1)}" y="${(p.y-8).toFixed(1)}" width="10" height="7" fill="#e8d840" rx="1" opacity="0.8"/>`;
+  });
+
+  // ── RIDERS ──
+  sorted.forEach((pl,rank)=>{
+    const idx=S.players.indexOf(pl);
+    const{x,y}=riderPos(rank);
+    const v=pts[pl];
+    const col=pcolor(idx);
+    const icon=picon(idx);
+    const lead=rank===0&&done>0;
+    const r=lead?15:11;
+
+    // Shadow on road
+    svg+=`<ellipse cx="${x.toFixed(1)}" cy="${(y+r+1).toFixed(1)}" rx="${(r*0.8).toFixed(1)}" ry="3" fill="rgba(0,0,0,0.18)"/>`;
+    // Glow for leader
+    if(lead) svg+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r+6}" fill="${col}" opacity="0.25"/>`;
+    // Rider circle
+    svg+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" fill="${col}"/>`;
+    svg+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" fill="none" stroke="white" stroke-width="2" opacity="0.8"/>`;
+    // Icon
+    svg+=`<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="${lead?14:11}">${icon}</text>`;
+    // Crown
+    if(lead) svg+=`<text x="${x.toFixed(1)}" y="${(y-r-10).toFixed(1)}" text-anchor="middle" font-size="13">👑</text>`;
+
+    // Label — alternate left/right
+    const pstr=done?(v>=0?'+':'')+v+' pts':'';
+    const goRight=rank%2===0;
+    const lx=goRight?x+r+6:x-r-6;
+    const anchor=goRight?'start':'end';
+    const bw=Math.max(pl.length*7+14, pstr?pstr.length*6.5+12:0, 50);
+    const bx=goRight?lx:lx-bw;
+    const by=y-13;
+    const bh=pstr?30:18;
+    svg+=`<rect x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="${bw.toFixed(0)}" height="${bh}" rx="4" fill="white" opacity="0.92"/>`;
+    svg+=`<text x="${(bx+bw/2).toFixed(1)}" y="${(by+12).toFixed(1)}" text-anchor="middle" font-size="11" font-weight="700" fill="${col}">${pl}</text>`;
+    if(pstr) svg+=`<text x="${(bx+bw/2).toFixed(1)}" y="${(by+24).toFixed(1)}" text-anchor="middle" font-size="10" font-weight="600" fill="${done&&v<0?'#3B6D11':'#cc2200'}">${pstr}</text>`;
+  });
+
+  // Footer
+  svg+=`<rect x="0" y="${VH-22}" width="${VW}" height="22" fill="rgba(0,0,0,0.18)"/>`;
+  svg+=`<text x="${VW/2}" y="${VH-7}" text-anchor="middle" font-size="11" fill="#f0ece4">${done}/21 etapas · ganha quem tiver menos pontos${pend?' · '+pend+' a aguardar':''}</text>`;
+  svg+=`</svg>`;
+
+  const medals=['🥇','🥈','🥉'];
+  let list='<div class="lb-list">';
+  sorted.forEach((pl,i)=>{
+    const idx=S.players.indexOf(pl);
+    const v=pts[pl];
+    const maxV=Math.max(...Object.values(pts).map(Math.abs),1);
+    const pct=done?Math.max(4,Math.round(Math.abs(v)/maxV*100)):4;
+    const jk=jkUsed(pl);
+    list+=`<div class="lb-row ${i===0&&done?'gold':i===1&&done?'sil':i===2&&done?'bro':''}">
+      <div style="font-size:18px;text-align:center">${medals[i]||i+1+'.'}</div>
+      <div style="font-size:24px;text-align:center">${picon(idx)}</div>
+      <div>
+        <div style="font-size:14px;font-weight:700">${pl}<span class="chip ${jk?'chip-used':'chip-ok'}">${jk?'🃏 usado':'🃏 disponível'}</span></div>
+        <div style="font-size:12px;color:var(--t2)">${wins[pl]} vitória${wins[pl]!==1?'s':''}</div>
+        <div class="prog-bg"><div class="prog-fill" style="width:${pct}%"></div></div>
+      </div>
+      <div style="font-size:22px;font-weight:800;text-align:right;color:${!done?'var(--t2)':v<0?'var(--gt)':v>100?'#E24B4A':'var(--t)'}">${done?(v>=0?'+':'')+v:' —'}</div>
+    </div>`;
+  });
+  list+='</div>';
+  document.getElementById('p-lb').innerHTML=`<div class="mtn-card">${svg}${list}</div>`;
+}
+/* ══════════════════════════════
+   APOSTAS WIZARD
+══════════════════════════════ */
+let W={step:0,stageNum:null,bets:{},jokers:{},locked:{}};
+
+function rWiz(){
+  const steps=['1. Etapa','2. Apostas','3. Confirmar'];
+  const dots=steps.map((s,i)=>`<div class="wdot ${i===W.step?'cur':i<W.step?'done':''}">${i<W.step?'✓ ':''}${s}</div>`).join('');
+  let body='';
+
+  if(W.step===0){
+    const used=new Set(S.stages.map(s=>s.num));
+    body+=`<div class="wtitle">Escolhe a etapa</div>
+    <div class="wsub">As apostas fecham antes de inserir o resultado</div>
+    <div class="sg-grid">`;
+    SI.forEach(s=>{
+      const isUsed=used.has(s.n),isSel=W.stageNum===s.n;
+      const sd=S.stages.find(x=>x.num===s.n);
+      const pill=sd?(sd.status==='done'?`<span class="spill sp-d">🔒 fechada</span>`:`<span class="spill sp-w">⏳ a aguardar</span>`):`<span class="spill sp-o">aberta</span>`;
+      body+=`<div class="sg ${isSel?'sg-on':''} ${isUsed?'sg-off':''}" onclick="wSel(${s.n})">
+        <div class="sg-n">${TI[s.t]} Et. ${s.n}</div>
+        <div class="sg-r">${s.d} · ${s.km}km</div>${pill}</div>`;
+    });
+    body+=`</div><div class="nav"><button class="btn bty" onclick="wNext()">Seguinte →</button></div>`;
+  }
+
+  else if(W.step===1){
+    const info=SI.find(x=>x.n===W.stageNum)||{};
+    body+=`<div class="wtitle">Etapa ${W.stageNum} — ${info.r}</div>
+    <div class="wsub">${info.d} · ${info.km}km · Cada jogador fecha a sua aposta individualmente</div>`;
+    S.players.forEach((p,i)=>{
+      const jk=jkUsed(p),lk=!!W.locked[p];
+      body+=`<div class="p-card ${lk?'locked':''}">
+        <div class="p-hdr">
+          <div style="font-size:28px;line-height:1">${picon(i)}</div>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:700">${p}</div>
+            <div style="font-size:12px;color:var(--t2)">Joker: ${jk?'<span style="color:var(--t3)">já usado</span>':'disponível'}</div>
+          </div>
+          ${lk?`<div class="lock-badge">🔒 apostado</div>`:''}
+        </div>
+        <div class="p-inputs">
+          <div class="fg"><label>Ciclista apostado</label>
+          <input type="text" id="b${i}" placeholder="Começa a escrever..." autocomplete="off" value="${W.bets[p]||''}" ${lk?'disabled':''} oninput="W.bets['${p}']=this.value;showAC(${i},'${p}')" onkeydown="navAC(event,${i},'${p}')" onfocus="showAC(${i},'${p}')" onblur="setTimeout(()=>closeAC(${i}),150)"><div class="ac-list" id="acl${i}" style="display:none"></div></div>
+          <div style="display:none"><input id="bp${i}"></div>
+        </div>
+        ${!jk?`<label class="jklbl"><input type="checkbox" id="bj${i}" ${lk?'disabled':''} ${W.jokers[p]?'checked':''} onchange="W.jokers['${p}']=this.checked"> 🃏 Usar Joker (dobra pontuação)</label>`:''}
+        ${!lk?`<div style="margin-top:10px"><button class="btn bty btsm" onclick="wLock(${i},'${p}')">🔒 Fechar aposta de ${p}</button></div>`:''}
+      </div>`;
+    });
+    const allDone=S.players.every(p=>W.locked[p]);
+    body+=`<div class="nav">
+      <button class="btn btgh" onclick="wBack()">← Voltar</button>
+      <button class="btn bty" onclick="wNext()" ${!allDone?'disabled':''}>Rever →</button>
+      ${!allDone?`<span style="font-size:12px;color:var(--t2)">Fecha todas as apostas primeiro</span>`:''}
+    </div>`;
+  }
+
+  else if(W.step===2){
+    const info=SI.find(x=>x.n===W.stageNum)||{};
+    body+=`<div class="wtitle">Confirmar apostas — Et. ${W.stageNum}</div>
+    <div class="wsub">Revê antes de fechar — não se pode alterar depois</div>
+    <div class="warn">⚠️ <span>Ao guardar, as apostas ficam <strong>permanentemente fechadas</strong>.</span></div>
+    <table class="ct"><tr><th>Jogador</th><th>Aposta</th><th>Joker</th></tr>`;
+    S.players.forEach((p,i)=>{
+      body+=`<tr><td style="font-weight:700">${picon(i)} ${p}</td><td>${W.bets[p]||'—'}</td><td>${W.jokers[p]?'🃏 sim':'—'}</td></tr>`;
+    });
+    body+=`</table>
+    <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:var(--rad);padding:10px 13px;font-size:13px;color:var(--t2);margin-bottom:1rem">
+      Etapa ${W.stageNum} · ${info.r} · ${info.d}</div>
+    <div class="nav">
+      <button class="btn btgh" onclick="wBack()">← Voltar</button>
+      <button class="btn btg" onclick="wSave()">💾 Guardar apostas</button>
+    </div>`;
+  }
+
+  document.getElementById('p-add').innerHTML=`<div class="wiz"><div class="wiz-bar">${dots}</div><div class="wbody">${body}</div></div>`;
+}
+
+// Autocomplete
+let acIdx={};
+function showAC(i,p){
+  const inp=document.getElementById('b'+i);
+  const list=document.getElementById('acl'+i);
+  if(!inp||!list)return;
+  const q=inp.value.trim().toLowerCase();
+  if(!q){list.style.display='none';return}
+  const matches=STARTLIST.filter(([n])=>n.toLowerCase().includes(q)).slice(0,12);
+  if(!matches.length){list.style.display='none';return}
+  list.innerHTML=matches.map(([n,t],idx)=>`<div class="ac-item" id="ac${i}_${idx}" onmousedown="pickAC(${i},'${p}','${n.replace(/'/g,"\'")}')"><span class="ac-item-name">${n}</span><span class="ac-item-team">${t}</span></div>`).join('');
+  list.style.display='block';
+  acIdx[i]=0;
+  list.querySelectorAll('.ac-item')[0]?.classList.add('sel');
+}
+function closeAC(i){
+  const list=document.getElementById('acl'+i);
+  if(list)list.style.display='none';
+}
+function navAC(e,i,p){
+  const list=document.getElementById('acl'+i);
+  if(!list||list.style.display==='none')return;
+  const items=list.querySelectorAll('.ac-item');
+  if(!items.length)return;
+  if(e.key==='ArrowDown'){e.preventDefault();acIdx[i]=(acIdx[i]||0+1)%items.length;items.forEach((el,j)=>el.classList.toggle('sel',j===acIdx[i]));}
+  else if(e.key==='ArrowUp'){e.preventDefault();acIdx[i]=(((acIdx[i]||0)-1)+items.length)%items.length;items.forEach((el,j)=>el.classList.toggle('sel',j===acIdx[i]));}
+  else if(e.key==='Enter'||e.key==='Tab'){e.preventDefault();const sel=list.querySelector('.sel');if(sel)sel.dispatchEvent(new MouseEvent('mousedown'));}
+  else if(e.key==='Escape'){closeAC(i);}
+}
+function pickAC(i,p,name){
+  const inp=document.getElementById('b'+i);
+  if(inp)inp.value=name;
+  W.bets[p]=name;
+  closeAC(i);
+}
+
+function wSel(n){if(S.stages.find(s=>s.num===n))return;W.stageNum=n;rWiz()}
+function wLock(i,p){
+  const b=document.getElementById('b'+i)?.value.trim();
+  if(!b){alert('Indica o ciclista apostado por '+p+'.');return}
+  W.bets[p]=b;
+  const jk=document.getElementById('bj'+i);if(jk)W.jokers[p]=jk.checked;
+  W.locked[p]=true;rWiz();
+}
+function wNext(){
+  if(W.step===0&&!W.stageNum){alert('Escolhe uma etapa.');return}
+  if(W.step===1&&!S.players.every(p=>W.locked[p])){alert('Fecha todas as apostas.');return}
+  W.step++;rWiz();
+}
+function wBack(){W.step--;rWiz()}
+function wSave(){
+  S.stages=S.stages.filter(s=>s.num!==W.stageNum);
+  S.stages.push({num:W.stageNum,status:'pending',bets:{...W.bets},jokers:{...W.jokers},positions:{},winner:null});
+  S.stages.sort((a,b)=>a.num-b.num);sv();
+  W={step:0,stageNum:null,bets:{},jokers:{},locked:{}};
+  updateBadge();go('res');
+}
+
+/* ══════════════════════════════
+   RESULTADO TAB
+══════════════════════════════ */
+// transient UI state — winner typed but not confirmed yet
+let RW=''; // winner string being edited
+
+function rRes(){
+  const pend=pendingStages();
+  const el=document.getElementById('p-res');
+
+  if(!pend.length){
+    const betDone=new Set(S.stages.map(s=>s.num));
+    const next=SI.find(s=>!betDone.has(s.n));
+    el.innerHTML=`<div class="empty-state">
+      <div class="big">🏁</div>
+      ${next
+        ?`<div style="font-size:15px;font-weight:700;margin-bottom:.5rem">Nenhuma etapa a aguardar resultado</div>
+           <div style="font-size:13px;color:var(--t2);margin-bottom:1rem">Próxima a apostar: Et. ${next.n} — ${next.r}</div>
+           <button class="btn bty" onclick="go('add')">✏️ Registar apostas da Et. ${next.n}</button>`
+        :`<div style="font-size:15px;font-weight:700">Tour concluído! 🎉</div>`
+      }</div>`;
+    return;
+  }
+
+  const s=pend[0];
+  const info=SI.find(x=>x.n===s.num)||{};
+
+  // figure out if winner is already confirmed on the stage object (shouldn't be, but guard)
+  const confirmedWinner=s._winner||'';
+
+  let h='';
+
+  // queue notice
+  if(pend.length>1){
+    h+=`<div style="background:var(--abg);border:1px solid var(--abd);border-radius:var(--rad);padding:8px 13px;font-size:13px;color:var(--at);margin-bottom:.875rem">
+      ⏳ ${pend.length} etapas a aguardar resultado — a tratar a Et. ${s.num} primeiro
+    </div>`;
+  }
+
+  // Stage header + bets preview
+  h+=`<div class="res-stage-hdr">
+    <div style="font-size:18px;font-weight:800;margin-bottom:3px">🏁 Etapa ${s.num} — ${info.r}</div>
+    <div style="font-size:13px;color:var(--at);margin-bottom:1rem">${info.d} · ${info.km}km · ${TI[info.t]} ${info.t}</div>
+    <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:.5rem">Apostas fechadas:</div>
+    <div class="bets-preview">`;
+  S.players.forEach((p,i)=>{
+    const b=s.bets&&s.bets[p];
+    h+=`<div class="bp"><div class="bp-n">${picon(i)} ${p}${s.jokers&&s.jokers[p]?' 🃏':''}</div><div class="bp-cy">${b||'—'}</div></div>`;
+  });
+  h+=`</div></div>`;
+
+  // ── STEP 1: enter winner ──
+  h+=`<div style="margin-bottom:1.5rem">
+    <div style="font-size:15px;font-weight:700;margin-bottom:.75rem">1. Quem ganhou a etapa?</div>
+    <div class="winner-input-row">
+      <div class="fg">
+        <label>Nome do vencedor da etapa ${s.num}</label>
+        <input type="text" id="winner-inp" placeholder="Ex: Pogacar" value="${RW}" oninput="RW=this.value;updatePosPreview()">
+      </div>
+    </div>
+  </div>`;
+
+  // ── STEP 2: positions ──
+  h+=`<div style="margin-bottom:1.5rem">
+    <div style="font-size:15px;font-weight:700;margin-bottom:.25rem">2. Posição de cada ciclista apostado</div>
+    <div style="font-size:13px;color:var(--t2);margin-bottom:.875rem">Se o ciclista apostado ganhou a etapa, a posição é automaticamente 1</div>
+    <div id="pos-entries">`;
+  S.players.forEach((p,i)=>{
+    const b=s.bets&&s.bets[p];
+    const jk=s.jokers&&s.jokers[p];
+    // check if this player's bet matches current winner input
+    const isWin=RW.trim()&&b&&b.trim().toLowerCase()===RW.trim().toLowerCase();
+    const ptv=isWin?calcPts(1,true,jk):null;
+    h+=`<div class="pos-entry" id="pe${i}">
+      <div style="font-size:24px">${picon(i)}</div>
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:700">${p}${jk?' 🃏':''}</div>
+        <div style="font-size:12px;color:var(--t2)">Apostou: <strong>${b||'—'}</strong></div>
+      </div>
+      ${isWin
+        ?`<span class="win-badge">🏆 pos. 1</span>
+          <span class="pts-preview" style="color:var(--gt)">${ptv} pts</span>`
+        :`<input type="number" class="pos-input" id="pos${i}" min="1" max="200" placeholder="Pos." oninput="updatePts(${i})"
+            value="${s._positions&&s._positions[p]||''}">
+          <span class="pts-preview" id="pts${i}" style="color:var(--t2)">— pts</span>`
+      }
+    </div>`;
+  });
+  h+=`</div></div>`;
+
+  // ── STEP 3: confirm ──
+  h+=`<div class="warn">⚠️ <span>Ao confirmar, a etapa fecha <strong>permanentemente</strong> — não pode ser alterada.</span></div>
+  <div class="nav">
+    <button class="btn btg" onclick="confirmResult()">🔒 Confirmar e fechar etapa ${s.num}</button>
+  </div>`;
+
+  el.innerHTML=h;
+  // restore saved draft positions
+  if(s._positions){
+    S.players.forEach((p,i)=>{
+      const inp=document.getElementById('pos'+i);
+      if(inp&&s._positions[p])inp.value=s._positions[p];
+    });
+  }
+  updatePosPreview();
+}
+
+function updatePosPreview(){
+  // re-render pos-entries section live as winner name changes
+  const pend=pendingStages();if(!pend.length)return;
+  const s=pend[0];
+  const winner=document.getElementById('winner-inp')?.value||'';
+  RW=winner;
+  S.players.forEach((p,i)=>{
+    const b=s.bets&&s.bets[p];
+    const jk=s.jokers&&s.jokers[p];
+    const isWin=winner.trim()&&b&&b.trim().toLowerCase()===winner.trim().toLowerCase();
+    const pe=document.getElementById('pe'+i);
+    if(!pe)return;
+    // save current pos input value before re-render
+    const curPos=document.getElementById('pos'+i)?.value||'';
+    const ptv=isWin?calcPts(1,true,jk):null;
+    pe.innerHTML=`
+      <div style="font-size:24px">${picon(i)}</div>
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:700">${p}${jk?' 🃏':''}</div>
+        <div style="font-size:12px;color:var(--t2)">Apostou: <strong>${b||'—'}</strong></div>
+      </div>
+      ${isWin
+        ?`<span class="win-badge">🏆 pos. 1</span>
+          <span class="pts-preview" style="color:var(--gt)">${ptv} pts</span>`
+        :`<input type="number" class="pos-input" id="pos${i}" min="1" max="200" placeholder="Pos."
+            oninput="updatePts(${i})" value="${curPos}">
+          <span class="pts-preview" id="pts${i}" style="color:var(--t2)">— pts</span>`
+      }`;
+    if(!isWin&&curPos)updatePts(i);
+  });
+}
+
+function updatePts(i){
+  const pend=pendingStages();if(!pend.length)return;
+  const s=pend[0];
+  const p=S.players[i];
+  const b=s.bets&&s.bets[p];
+  const jk=s.jokers&&s.jokers[p];
+  const winner=document.getElementById('winner-inp')?.value||'';
+  const pos=parseInt(document.getElementById('pos'+i)?.value);
+  const el=document.getElementById('pts'+i);
+  if(!el)return;
+  if(isNaN(pos)||pos<1){el.textContent='— pts';el.style.color='var(--t2)';return}
+  const isWin=winner.trim()&&b&&b.trim().toLowerCase()===winner.trim().toLowerCase();
+  const ptv=calcPts(pos,isWin,jk);
+  el.textContent=(ptv>=0?'+':'')+ptv+' pts';
+  el.style.color=ptv<0?'var(--gt)':'#E24B4A';
+  // save draft
+  if(!s._positions)s._positions={};
+  s._positions[p]=pos;
+}
+
+function confirmResult(){
+  const pend=pendingStages();if(!pend.length)return;
+  const stage=pend[0];
+  const winner=(document.getElementById('winner-inp')?.value||RW).trim();
+  if(!winner){alert('Indica o nome do vencedor da etapa.');return}
+
+  // collect positions
+  const positions={};
+  const missing=[];
+  S.players.forEach((p,i)=>{
+    const b=stage.bets&&stage.bets[p];
+    const isWin=b&&b.trim().toLowerCase()===winner.toLowerCase();
+    if(isWin){positions[p]=1;return}
+    const pos=parseInt(document.getElementById('pos'+i)?.value);
+    if(isNaN(pos)||pos<1){missing.push(p);return}
+    positions[p]=pos;
+  });
+
+  if(missing.length){alert('Falta a posição de: '+missing.join(', '));return}
+
+  stage.winner=winner;
+  stage.status='done';
+  stage.positions=positions;
+  delete stage._positions;
+  delete stage._winner;
+  sv();
+  RW='';
+  updateBadge();
+  // show quick summary then go to LB
+  rRes();rLB();
+  go('lb');
+}
+
+/* ══════════════════════════════
+   HISTÓRICO
+══════════════════════════════ */
+function rHist(){
+  const el=document.getElementById('p-hist');
+  const done=S.stages.filter(s=>s.status==='done').sort((a,b)=>a.num-b.num);
+  if(!done.length){el.innerHTML='<div class="empty-state"><div class="big">📋</div>Ainda não há etapas concluídas</div>';return}
+  let h=`<p class="seclab">✅ ${done.length} etapa${done.length!==1?'s':''} concluída${done.length!==1?'s':''}</p>`;
+  done.forEach(s=>{
+    const info=SI.find(x=>x.n===s.num)||{};
+    h+=`<div style="margin-bottom:1.375rem">
+      <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:4px">
+        <span style="font-size:12px;color:var(--t2);font-weight:700">Et. ${s.num}</span>
+        <span style="font-size:12px;color:var(--t2)">${info.d}</span>
+        <span class="type-pill">${TI[info.t]||''} ${info.t}</span>
+        <span style="font-size:14px;font-weight:800;flex:1">🏆 ${s.winner}</span>
+      </div>
+      <div style="font-size:12px;color:var(--t2);margin-bottom:6px">${info.r} · ${info.km}km</div>
+      <div class="bet-row">`;
+    S.players.forEach((p,i)=>{
+      const b=s.bets&&s.bets[p],pos=s.positions&&s.positions[p];
+      const w=b&&s.winner&&b.trim().toLowerCase()===s.winner.trim().toLowerCase();
+      const jk=s.jokers&&s.jokers[p];
+      const ptv=b&&pos!=null?calcPts(pos,w,jk):null;
+      h+=`<div class="bc ${w?'bw':''}">
+        <div class="bc-pn">${picon(i)} ${p}${jk?' 🃏':''}</div>
+        <div class="bc-cy">${b||'—'}</div>
+        ${ptv!=null?`<div class="bc-pt">${ptv>=0?'+':''}${ptv} pts</div>`:''}
+      </div>`;
+    });
+    h+=`</div></div>`;
+  });
+  el.innerHTML=h;
+}
+
+/* ══════════════════════════════
+   CONFIG
+══════════════════════════════ */
+function rCfg(){
+  let h=`<div class="card"><div class="card-title">Jogadores e ícones</div>`;
+  S.players.forEach((p,i)=>{
+    h+=`<div class="pl-row">
+      <select id="ic${i}" onchange="S.icons[${i}]=this.value;sv()">${ALL_ICONS.map(ic=>`<option value="${ic}" ${ic===picon(i)?'selected':''}>${ic}</option>`).join('')}</select>
+      <input type="text" value="${p}" id="pl${i}">
+      <button class="btn btgh btsm" onclick="rmP(${i})">🗑</button>
+    </div>`;
+  });
+  h+=`<div class="nav" style="margin-top:8px">
+    <button class="btn btgh btsm" onclick="addP()">+ Adicionar</button>
+    <button class="btn bty btsm" onclick="saveP()">✓ Guardar</button>
+  </div></div>
+  <div class="card" style="border-color:var(--rbd)"><div class="card-title" style="color:var(--rt)">Zona de perigo</div>
+  <p style="font-size:13px;color:var(--t2);margin-bottom:12px">Apaga todos os dados guardados</p>
+  <button class="btn btdanger" onclick="resetAll()">🗑 Apagar tudo</button></div>`;
+  document.getElementById('p-cfg').innerHTML=h;
+}
+
+function addP(){saveP();S.players.push('Novo');S.icons.push(ALL_ICONS[S.players.length%ALL_ICONS.length]);sv();rCfg()}
+function rmP(i){if(S.players.length<=1)return;if(!confirm('Remover '+S.players[i]+'?'))return;S.players.splice(i,1);S.icons.splice(i,1);sv();rCfg()}
+function saveP(){
+  S.players=S.players.map((_,i)=>document.getElementById('pl'+i)?.value.trim()||S.players[i]);
+  S.icons=S.players.map((_,i)=>document.getElementById('ic'+i)?.value||S.icons[i]);
+  sv();
+}
+function resetAll(){if(!confirm('Apagar TUDO?'))return;const pl=S.players,ic=S.icons;S=JSON.parse(JSON.stringify(DEF));S.players=pl;S.icons=ic;sv();W={step:0,stageNum:null,bets:{},jokers:{},locked:{}};RW='';updateBadge();go('lb')}
+
+updateBadge();
+// Load from Firebase first, then start listener
+fbLoad().then(()=>{
+  rLB();
+  fbListen();
+}).catch(()=>{
+  rLB();
+});
+</script>
+</body>
+</html>
